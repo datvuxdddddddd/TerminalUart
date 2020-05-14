@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="parity">
+        <item>none</item>
+        <item>odd</item>
+        <item>even</item>
+    </string-array>
+</resources>
