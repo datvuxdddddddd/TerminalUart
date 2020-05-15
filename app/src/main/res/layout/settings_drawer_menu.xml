@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/baudrate"
+            android:title="baudrate"
+            app:actionLayout="@layout/spinner_baudrate"/>
+        <item
+            android:id="@+id/dataBits"
+            android:title="dataBits"
+            app:actionLayout="@layout/spinner_databits"/>
+        />
+        <item
+            android:id="@+id/parity"
+            android:title="parity"
+            app:actionLayout="@layout/spinner_parity"/>
+        <item
+            android:id="@+id/stopBits"
+            android:title="stopBits"
+            app:actionLayout="@layout/spinner_stopbits"/>
+    </group>
+</menu>
