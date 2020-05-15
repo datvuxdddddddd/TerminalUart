@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer-array name="dataBits">
+    <string-array name="dataBits_array">
         <item>5</item>
         <item>6</item>
         <item>7</item>
         <item>8</item>
-    </integer-array>
+    </string-array>
 </resources>

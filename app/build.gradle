@@ -37,4 +37,5 @@ dependencies {
     implementation 'com.github.mik3y:usb-serial-for-android:2.+'
     implementation "com.benlypan:UsbHid:0.1.0"
     implementation 'com.android.support:recyclerview-v7:26.1.0'
+    implementation 'com.android.support:design:26.1.0'
 }
