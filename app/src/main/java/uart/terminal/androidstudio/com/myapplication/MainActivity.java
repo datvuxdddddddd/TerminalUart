@@ -19,12 +19,15 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -56,6 +59,7 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
     TextView txtOut;
     DrawerLayout mDrawerLayout;
     NavigationView settings_drawer;
+    EditText TextInput;
 
 
 
@@ -90,12 +94,24 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
-
+        TextInput = findViewById(R.id.TextInput);
 
         txtOut = findViewById(R.id.txtOut);
+        txtOut.setMovementMethod(new ScrollingMovementMethod());
+
         mDrawerLayout = findViewById(R.id.drawer_layout);
         settings_drawer = findViewById(R.id.settings_drawer);
         settings_drawer.setClickable(false);
+
+        TextInput.setOnKeyListener((v, keyCode, event) -> {
+            if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                    (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                txtOut.append("\n" + TextInput.getText());
+                TextInput.getText().clear();
+                return true;
+            }
+            return false;
+        });
 
 
 

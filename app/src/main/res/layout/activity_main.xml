@@ -12,6 +12,16 @@
         android:layout_height="match_parent">
 
 
+        <EditText
+            android:id="@+id/TextInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:autofillHints="false"
+            android:background="#595454"
+            android:ems="10"
+            android:inputType="text" />
+
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -21,9 +31,13 @@
 
         <TextView
             android:id="@+id/txtOut"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hello World!" />
+            android:layout_gravity="bottom"
+            android:layout_marginVertical="100dp"
+            android:maxLines="50"
+            android:scrollbars = "vertical" />
+
     </FrameLayout>
 
     <android.support.design.widget.NavigationView
@@ -33,7 +47,6 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:menu="@layout/settings_drawer_menu"/>
-
 
 
 </android.support.v4.widget.DrawerLayout>
