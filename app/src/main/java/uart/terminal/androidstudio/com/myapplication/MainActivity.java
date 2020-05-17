@@ -107,6 +107,9 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
             if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
                     (keyCode == KeyEvent.KEYCODE_ENTER)) {
                 txtOut.append("\n" + TextInput.getText());
+
+                //push TextInput to UART
+
                 TextInput.getText().clear();
                 return true;
             }
@@ -122,7 +125,26 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         spinner_baudrate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, "Set baudrate",Toast.LENGTH_SHORT).show();
+                if(spinner_baudrate.getSelectedItemPosition() == 0) {
+                    Values.baudrate = 2400;
+                }
+               else if(spinner_baudrate.getSelectedItemPosition() == 1) {
+                    Values.baudrate = 9600;
+                }
+               else if(spinner_baudrate.getSelectedItemPosition() == 2) {
+                    Values.baudrate = 19200;
+                }
+               else if(spinner_baudrate.getSelectedItemPosition() == 3) {
+                    Values.baudrate = 38400;
+                }
+               else if(spinner_baudrate.getSelectedItemPosition() == 4) {
+                    Values.baudrate = 57600;
+                }
+               else if(spinner_baudrate.getSelectedItemPosition() == 4) {
+                    Values.baudrate = 115200;
+                }
+                Toast.makeText(MainActivity.this, "Set baudrate to " + Values.baudrate, Toast.LENGTH_SHORT).show();
+
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -135,7 +157,19 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         spinner_dataBits.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, "Set dataBits",Toast.LENGTH_SHORT).show();
+                if (spinner_dataBits.getSelectedItemPosition() == 0) {
+                    Values.dataBits = 5;
+                }
+                else if (spinner_dataBits.getSelectedItemPosition() == 1) {
+                    Values.dataBits = 6;
+                }
+                else if (spinner_dataBits.getSelectedItemPosition() == 2) {
+                    Values.dataBits = 7;
+                }
+                else if (spinner_dataBits.getSelectedItemPosition() == 3) {
+                    Values.dataBits = 8;
+                }
+                Toast.makeText(MainActivity.this, "Set data bits to " + Values.dataBits, Toast.LENGTH_SHORT).show();
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -150,16 +184,14 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (spinner_parity.getSelectedItemPosition() == 1) {
                     Values.parity = "odd";
-                    Toast.makeText(MainActivity.this, "Set parity " + Values.parity, Toast.LENGTH_SHORT).show();
                 }
-                if (spinner_parity.getSelectedItemPosition() == 0) {
+               else if (spinner_parity.getSelectedItemPosition() == 0) {
                     Values.parity = "none";
-                    Toast.makeText(MainActivity.this, "Set parity " + Values.parity, Toast.LENGTH_SHORT).show();
                 }
-                if (spinner_parity.getSelectedItemPosition() == 2) {
+               else if (spinner_parity.getSelectedItemPosition() == 2) {
                     Values.parity = "even";
-                    Toast.makeText(MainActivity.this, "Set parity " + Values.parity, Toast.LENGTH_SHORT).show();
                 }
+                Toast.makeText(MainActivity.this, "Set parity " + Values.parity, Toast.LENGTH_SHORT).show();
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -172,14 +204,23 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         spinner_stopBits.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, "Set dataBits",Toast.LENGTH_SHORT).show();
+               if (spinner_stopBits.getSelectedItemPosition() == 0){
+                   Values.stopBits = 1;
+                }
+               else if(spinner_stopBits.getSelectedItemPosition() == 1){
+                   Values.stopBits = 2;
+               }
+               else if(spinner_stopBits.getSelectedItemPosition() == 2){
+                   Values.stopBits = 1.5;
+               }
+                Toast.makeText(MainActivity.this, "Set stop bits to " + Values.stopBits, Toast.LENGTH_SHORT).show();
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
 
-
+    //////////////////////////******************//////////////////////////////////////////
 
         //settingsButton.setOnClickListener((View v) ->{     });
 
@@ -220,10 +261,8 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
                mDrawerLayout.openDrawer(settings_drawer);
                 return true;
-
     }
 
 

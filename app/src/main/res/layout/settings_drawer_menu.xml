@@ -10,7 +10,7 @@
             app:actionLayout="@layout/spinner_baudrate"/>
         <item
             android:id="@+id/dataBits"
-            android:title="dataBits"
+            android:title="data bits"
             app:actionLayout="@layout/spinner_databits"/>
         />
         <item
@@ -19,7 +19,7 @@
             app:actionLayout="@layout/spinner_parity"/>
         <item
             android:id="@+id/stopBits"
-            android:title="stopBits"
+            android:title="stop bits"
             app:actionLayout="@layout/spinner_stopbits"/>
     </group>
 </menu>
