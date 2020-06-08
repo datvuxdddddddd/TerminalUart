@@ -1,19 +1,11 @@
 package uart.terminal.androidstudio.com.myapplication;
 
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.hardware.usb.UsbConstants;
-import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
-import android.hardware.usb.UsbEndpoint;
-import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
-import android.hardware.usb.UsbRequest;
 import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -38,9 +30,13 @@ import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 
 //https://github.com/rcties/PrinterPlusCOMM
@@ -52,7 +48,7 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
     DrawerLayout mDrawerLayout;
     NavigationView settings_drawer;
     EditText TextInput;
-    Button params;
+    Button sendData;
 
 
     UsbSerialPort port;
@@ -82,7 +78,7 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
-        params = findViewById(R.id.button_get_params);
+        sendData = findViewById(R.id.send_data);
         TextInput = findViewById(R.id.TextInput);
         txtOut = findViewById(R.id.txtOut);
         txtOut.setMovementMethod(new ScrollingMovementMethod());
@@ -91,10 +87,22 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         settings_drawer = findViewById(R.id.settings_drawer);
         settings_drawer.setClickable(false);
 
-        params.setOnClickListener((View v) ->
-                Toast.makeText(this, Values.baudrate + " " + Values.dataBits + " "
-                                                  + Values.parity + " " + Values.stopBits,
-                    Toast.LENGTH_SHORT).show());
+        sendData.setOnClickListener((View v) -> {
+            int randomNum = ThreadLocalRandom.current().nextInt(19, 40);
+            String requestURl = ("https://api.thingspeak.com/update?api_key=WA0O4CNVG5RY1SLH&field2=" + randomNum);
+            Toast.makeText(this, requestURl + " \n \t" + randomNum, Toast.LENGTH_LONG).show();
+            new Thread() {
+                public void run() {
+                    try {
+                        Request request = new Request.Builder().url(requestURl).build();
+                        new OkHttpClient().newCall(request).execute().close();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
+        });
 
         TextInput.setOnKeyListener((v, keyCode, event) -> {
             if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)){
@@ -246,7 +254,6 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
             if (connection == null) {
                 manager.requestPermission(driver.getDevice(), PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0));
             } else {
-                // Most devices have just one port (port 0)
                 port = driver.getPorts().get(0);
                 try {
                     port.open(connection);
@@ -285,7 +292,7 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         runOnUiThread(() -> {
             String receivedData = new String(data);
             txtOut.append("\n \t" + receivedData);
-            //bytesToHex(data);
+            //send data to thingspeak, see sendData button
         });
     }
 

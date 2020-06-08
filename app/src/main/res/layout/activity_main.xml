@@ -31,10 +31,10 @@
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
 
         <Button
-            android:id="@+id/button_get_params"
+            android:id="@+id/send_data"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="PARAMs"
+            android:text="send"
             android:layout_gravity="end"/>
 
         <TextView
