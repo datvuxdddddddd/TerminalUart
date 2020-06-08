@@ -15,12 +15,13 @@
         <EditText
             android:id="@+id/TextInput"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_gravity="bottom|center"
             android:autofillHints="false"
-            android:background="#595454"
+            android:background="#E2FFFFFF"
             android:ems="10"
-            android:inputType="text" />
+            android:inputType="text"
+            android:hint="       input here"/>
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -34,7 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="PARAMs"
-            android:layout_gravity="right"/>
+            android:layout_gravity="end"/>
 
         <TextView
             android:id="@+id/txtOut"
@@ -42,9 +43,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_marginVertical="100dp"
+            android:gravity="bottom"
             android:maxLines="50"
-            android:scrollbars = "vertical"
-            android:gravity="bottom"/>
+            android:scrollbars="vertical"
+            android:textSize="20sp" />
 
     </FrameLayout>
 

@@ -98,13 +98,12 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
 
         TextInput.setOnKeyListener((v, keyCode, event) -> {
             if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)){
-                txtOut.append("\n" + TextInput.getText());
+                txtOut.append("\n \t" + TextInput.getText());
                 try {   /* push TextInput to UART */
                     port.write(TextInput.getText().toString().getBytes(), 1000);
                 } catch (Exception e){
                     txtOut.append("\n Message send failed");
                 }
-                //scroll to lastest text
                 TextInput.getText().clear();
                 return true;
             }
@@ -115,7 +114,7 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         ArrayAdapter<CharSequence> baudrates = ArrayAdapter.createFromResource(MainActivity.this, R.array.baudrate_array, android.R.layout.simple_spinner_item);
         Spinner spinner_baudrate = (Spinner) settings_drawer.getMenu().findItem(R.id.baudrate).getActionView();
         spinner_baudrate.setAdapter(baudrates);
-        spinner_baudrate.setSelection(1);
+        spinner_baudrate.setSelection(5);
         spinner_baudrate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -231,8 +230,6 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
 
         //////////////////////////******************//////////////////////////////////////////
 
-        //settingsButton.setOnClickListener((View v) ->{     });
-
         UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
         List<UsbSerialDriver> availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager);
 
@@ -254,11 +251,10 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
                 try {
                     port.open(connection);
                     port.setParameters(Values.baudrate, Values.dataBits, Values.stopBits, Values.parity);
-
                     SerialInputOutputManager usbIoManager = new SerialInputOutputManager(port, this);
                     Executors.newSingleThreadExecutor().submit(usbIoManager);
                 } catch (Exception e) {
-                    txtOut.setText("Message send failed");
+                    txtOut.setText("Error occurred");
                 }
 
             }
@@ -277,6 +273,7 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         super.onDestroy();
         try {
             port.close();
+            txtOut.setText("Device disconnected");
         } catch (Exception e) {
         }
     }
@@ -285,12 +282,10 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
 
     @Override
     public void onNewData(final byte[] data) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                String receivedData = new String(data);
-                txtOut.append("\n \t" + receivedData);
-            }
+        runOnUiThread(() -> {
+            String receivedData = new String(data);
+            txtOut.append("\n \t" + receivedData);
+            //bytesToHex(data);
         });
     }
 
