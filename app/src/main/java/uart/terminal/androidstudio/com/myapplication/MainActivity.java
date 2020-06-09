@@ -30,6 +30,10 @@ import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -50,22 +54,34 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
     EditText TextInput;
     Button sendData;
 
-
     UsbSerialPort port;
 
+    MQTTHelper mqttHelper;
+    private void startMQTT(){
+        mqttHelper = new MQTTHelper(getApplicationContext());
+        mqttHelper.setCallback(new MqttCallbackExtended() {
+            @Override
+            public void connectComplete(boolean b, String s) { }
 
-    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+            @Override
+            public void connectionLost(Throwable throwable) { }
 
-    public static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-        }
-        return new String(hexChars);
+            @Override
+            public void messageArrived(String topic, MqttMessage mqttMessage) throws IOException {
+                if (mqttMessage.toString().equals("TOGGLE1")){
+                    //port.write() toggle microbit1
+                } else if (mqttMessage.toString().equals("TOGGLE2")){
+                    //port.write() toggle microbit2
+                }
+                txtOut.append("\n" + mqttMessage.toString());
+            }
+
+            @Override
+            public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) { }
+
+        });
+
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,10 +103,12 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         settings_drawer = findViewById(R.id.settings_drawer);
         settings_drawer.setClickable(false);
 
+        startMQTT();
+
         sendData.setOnClickListener((View v) -> {
             int randomNum = ThreadLocalRandom.current().nextInt(19, 40);
-            String requestURl = ("https://api.thingspeak.com/update?api_key=WA0O4CNVG5RY1SLH&field2=" + randomNum);
-            Toast.makeText(this, requestURl + " \n \t" + randomNum, Toast.LENGTH_LONG).show();
+            String requestURl = ("https://api.thingspeak.com/update?api_key=WA0O4CNVG5RY1SLH&field2=" + randomNum + "&field1=" + randomNum);
+            Toast.makeText(this, requestURl + " \n \t", Toast.LENGTH_LONG).show();
             new Thread() {
                 public void run() {
                     try {
@@ -211,7 +229,6 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         ArrayAdapter<CharSequence> stopBits = ArrayAdapter.createFromResource(MainActivity.this, R.array.stopbits_array, android.R.layout.simple_spinner_item);
         Spinner spinner_stopBits = (Spinner) settings_drawer.getMenu().findItem(R.id.stopBits).getActionView();
         spinner_stopBits.setAdapter(stopBits);
-        //stopBits.getPosition("1");
         spinner_stopBits.setSelection(0);
         spinner_stopBits.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
