@@ -35,9 +35,12 @@ import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -53,6 +56,9 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
     NavigationView settings_drawer;
     EditText TextInput;
     Button sendData;
+
+    private static final Pattern inputPattern = Pattern.compile("([A-Z]+)([0-9]+)([A-Z]+)([0-9]+)");
+    private static final Pattern inputPatternHalf = Pattern.compile("([A-Z]+)([0-9]+)");
 
     UsbSerialPort port;
 
@@ -106,20 +112,14 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         startMQTT();
 
         sendData.setOnClickListener((View v) -> {
-            int randomNum = ThreadLocalRandom.current().nextInt(19, 40);
-            String requestURl = ("https://api.thingspeak.com/update?api_key=WA0O4CNVG5RY1SLH&field2=" + randomNum + "&field1=" + randomNum);
-            Toast.makeText(this, requestURl + " \n \t", Toast.LENGTH_LONG).show();
-            new Thread() {
-                public void run() {
-                    try {
-                        Request request = new Request.Builder().url(requestURl).build();
-                        new OkHttpClient().newCall(request).execute().close();
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }.start();
+            StringBuilder a = new StringBuilder("TEMP12");
+            System.out.println(a);
+            Matcher m = inputPattern.matcher(a);
+            System.out.println(m.matches());
+            a.append("AMB34");
+            System.out.println(a);
+            m = inputPattern.matcher(a);
+            System.out.println(m.matches());
         });
 
         TextInput.setOnKeyListener((v, keyCode, event) -> {
@@ -303,14 +303,29 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
     }
 
 
-
+    private StringBuilder aaa = null;
     @Override
     public void onNewData(final byte[] data) {
-        runOnUiThread(() -> {
-            String receivedData = new String(data);
-            txtOut.append("\n \t" + receivedData);
-            //send data to thingspeak, see sendData button
-        });
+//        runOnUiThread(() -> {
+//            String receivedData = new String(data);
+//            txtOut.append("\n \t" + receivedData);
+//            //send data to thingspeak, see sendData button
+//        });
+
+        String requestURl = ("https://api.thingspeak.com/update?api_key=WA0O4CNVG5RY1SLH&field2=" + inputPattern.matcher(aaa).group(4)
+                                                                                     + "&field1=" + inputPattern.matcher(aaa).group(2));
+        Toast.makeText(this, requestURl + " \n \t", Toast.LENGTH_LONG).show();
+        new Thread() {
+            public void run() {
+                try {
+                    Request request = new Request.Builder().url(requestURl).build();
+                    new OkHttpClient().newCall(request).execute().close();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
     @Override
