@@ -116,7 +116,10 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
             System.out.println(a);
             Matcher m = inputPattern.matcher(a);
             System.out.println(m.matches());
-            a.append("AMB34");
+            m = inputPatternHalf.matcher("AMB34");
+            m.matches();
+            if(m.group(1).equals("AMB")){
+            a.append("AMB34");}
             System.out.println(a);
             m = inputPattern.matcher(a);
             System.out.println(m.matches());
@@ -303,7 +306,10 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
     }
 
 
-    private StringBuilder aaa = null;
+    private StringBuilder uploadString = new StringBuilder();
+    Matcher checkPattern = inputPattern.matcher(uploadString);
+    Matcher checkPatternHalf;
+
     @Override
     public void onNewData(final byte[] data) {
 //        runOnUiThread(() -> {
@@ -311,9 +317,22 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
 //            txtOut.append("\n \t" + receivedData);
 //            //send data to thingspeak, see sendData button
 //        });
-
-        String requestURl = ("https://api.thingspeak.com/update?api_key=WA0O4CNVG5RY1SLH&field2=" + inputPattern.matcher(aaa).group(4)
-                                                                                     + "&field1=" + inputPattern.matcher(aaa).group(2));
+        while (!checkPattern.matches()){
+            checkPatternHalf = inputPatternHalf.matcher(data.toString());
+            if (checkPatternHalf.matches()){
+                if (uploadString.equals("") && checkPatternHalf.group(1).equals("TEMP")){
+                    uploadString.append(data.toString());
+                    txtOut.append(uploadString + " \n");
+                }
+                else if (!uploadString.equals("") && checkPatternHalf.group(1).equals("AMB")){
+                    uploadString.append(data.toString());
+                    txtOut.append(uploadString + " \n");
+                }
+            }
+        }
+/////////////////////////////////////////////
+        String requestURl = ("https://api.thingspeak.com/update?api_key=WA0O4CNVG5RY1SLH&field2=" + checkPattern.group(4)
+                                                                                     + "&field1=" + checkPattern.group(2));
         Toast.makeText(this, requestURl + " \n \t", Toast.LENGTH_LONG).show();
         new Thread() {
             public void run() {
