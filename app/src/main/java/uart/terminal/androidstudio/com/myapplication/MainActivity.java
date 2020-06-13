@@ -318,14 +318,14 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
 //            //send data to thingspeak, see sendData button
 //        });
         while (!checkPattern.matches()){
-            checkPatternHalf = inputPatternHalf.matcher(data.toString());
+            checkPatternHalf = inputPatternHalf.matcher(new String(data));
             if (checkPatternHalf.matches()){
-                if (uploadString.equals("") && checkPatternHalf.group(1).equals("TEMP")){
-                    uploadString.append(data.toString());
+                if (uploadString.toString().equals("") && checkPatternHalf.group(1).equals("TEMP")){
+                    uploadString.append(new String(data));
                     txtOut.append(uploadString + " \n");
                 }
-                else if (!uploadString.equals("") && checkPatternHalf.group(1).equals("AMB")){
-                    uploadString.append(data.toString());
+                else if (!uploadString.toString().equals("") && checkPatternHalf.group(1).equals("AMB")){
+                    uploadString.append(new String(data));
                     txtOut.append(uploadString + " \n");
                 }
             }
@@ -345,6 +345,7 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
                 }
             }
         }.start();
+        uploadString = new StringBuilder();
     }
 
     @Override
