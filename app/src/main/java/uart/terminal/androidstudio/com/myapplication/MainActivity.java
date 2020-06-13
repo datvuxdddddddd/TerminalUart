@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,9 +74,9 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
             @Override
             public void messageArrived(String topic, MqttMessage mqttMessage) throws IOException {
                 if (mqttMessage.toString().equals("TOGGLE1")){
-                    //port.write() toggle microbit1
+                    port.write("one".getBytes(), 1000);
                 } else if (mqttMessage.toString().equals("TOGGLE2")){
-                    //port.write() toggle microbit2
+                    port.write("two".getBytes(), 1000);
                 }
                 txtOut.append("\n" + mqttMessage.toString());
             }
@@ -307,8 +306,7 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
 
 
     private StringBuilder uploadString = new StringBuilder();
-    Matcher checkPattern = inputPattern.matcher(uploadString);
-    Matcher checkPatternHalf;
+    private Matcher checkPattern = inputPattern.matcher(uploadString);
 
     @Override
     public void onNewData(final byte[] data) {
@@ -317,35 +315,35 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
 //            txtOut.append("\n \t" + receivedData);
 //            //send data to thingspeak, see sendData button
 //        });
-        while (!checkPattern.matches()){
-            checkPatternHalf = inputPatternHalf.matcher(new String(data));
+        Matcher checkPatternHalf = inputPatternHalf.matcher(new String(data));
             if (checkPatternHalf.matches()){
-                if (uploadString.toString().equals("") && checkPatternHalf.group(1).equals("TEMP")){
-                    uploadString.append(new String(data));
-                    txtOut.append(uploadString + " \n");
-                }
-                else if (!uploadString.toString().equals("") && checkPatternHalf.group(1).equals("AMB")){
+                if (
+                        (uploadString.toString().equals("") && checkPatternHalf.group(1).equals("TEMP"))
+                        || (!uploadString.toString().equals("") && checkPatternHalf.group(1).equals("AMB"))
+                ){
                     uploadString.append(new String(data));
                     txtOut.append(uploadString + " \n");
                 }
             }
-        }
 /////////////////////////////////////////////
-        String requestURl = ("https://api.thingspeak.com/update?api_key=WA0O4CNVG5RY1SLH&field2=" + checkPattern.group(4)
-                                                                                     + "&field1=" + checkPattern.group(2));
-        Toast.makeText(this, requestURl + " \n \t", Toast.LENGTH_LONG).show();
-        new Thread() {
-            public void run() {
-                try {
-                    Request request = new Request.Builder().url(requestURl).build();
-                    new OkHttpClient().newCall(request).execute().close();
+        if (checkPattern.matches()) {
+            String requestURl = ("https://api.thingspeak.com/update?api_key=WA0O4CNVG5RY1SLH&field2=" + checkPattern.group(4)
+                    + "&field1=" + checkPattern.group(2));
+            txtOut.append(requestURl + "\n");
+            new Thread(){
+                public void run() {
+                    try {
+                        Request request = new Request.Builder().url(requestURl).build();
+                        new OkHttpClient().newCall(request).execute().close();
 
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        }.start();
-        uploadString = new StringBuilder();
+            }.start();
+            txtOut.setText("Data uploaded! \n");
+            uploadString = new StringBuilder();
+        }
     }
 
     @Override
