@@ -56,8 +56,8 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
     EditText TextInput;
     Button sendData;
 
-    private static final Pattern inputPattern = Pattern.compile("([A-Z]+)([0-9]+)([A-Z]+)([0-9]+)");
-    private static final Pattern inputPatternHalf = Pattern.compile("([A-Z]+)([0-9]+)");
+    private static final Pattern inputPattern = Pattern.compile("[T]([0-9]+)[A]([0-9]+)");
+    private static final Pattern inputPatternHalf = Pattern.compile("[TA]([0-9]+)");
 
     UsbSerialPort port;
 
@@ -318,8 +318,8 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         Matcher checkPatternHalf = inputPatternHalf.matcher(new String(data));
             if (checkPatternHalf.matches()){
                 if (
-                        (uploadString.toString().equals("") && checkPatternHalf.group(1).equals("TEMP"))
-                        || (!uploadString.toString().equals("") && checkPatternHalf.group(1).equals("AMB"))
+                        (uploadString.toString().equals("") && checkPatternHalf.group(1).equals("T"))
+                        || (!uploadString.toString().equals("") && checkPatternHalf.group(1).equals("A"))
                 ){
                     uploadString.append(new String(data));
                     txtOut.append(uploadString + " \n");
@@ -329,7 +329,7 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         if (checkPattern.matches()) {
             String requestURl = ("https://api.thingspeak.com/update?api_key=WA0O4CNVG5RY1SLH&field2=" + checkPattern.group(4)
                     + "&field1=" + checkPattern.group(2));
-            txtOut.append(requestURl + "\n");
+            txtOut.append("\n" + requestURl);
             new Thread(){
                 public void run() {
                     try {
