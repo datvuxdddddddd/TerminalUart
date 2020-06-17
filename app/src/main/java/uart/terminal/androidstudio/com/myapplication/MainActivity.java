@@ -56,8 +56,8 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
     EditText TextInput;
     Button sendData;
 
-    private static final Pattern inputPattern = Pattern.compile("[T]([0-9]+)[A]([0-9]+)");
-    private static final Pattern inputPatternHalf = Pattern.compile("[TA]([0-9]+)");
+    private static final Pattern inputPattern = Pattern.compile("([T])([0-9]+)([A])([0-9]+)");
+    private static final Pattern inputPatternHalf = Pattern.compile("([TA])([0-9]+)");
 
     UsbSerialPort port;
 
@@ -111,17 +111,21 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         startMQTT();
 
         sendData.setOnClickListener((View v) -> {
-            StringBuilder a = new StringBuilder("TEMP12");
+            StringBuilder a = new StringBuilder("T12");
             System.out.println(a);
-            Matcher m = inputPattern.matcher(a);
-            System.out.println(m.matches());
-            m = inputPatternHalf.matcher("AMB34");
-            m.matches();
-            if(m.group(1).equals("AMB")){
-            a.append("AMB34");}
-            System.out.println(a);
-            m = inputPattern.matcher(a);
-            System.out.println(m.matches());
+           Matcher m = inputPatternHalf.matcher(a);
+           m.matches();
+
+
+
+
+//            m = inputPatternHalf.matcher("AMB34");
+//            m.matches();
+//            if(m.group(1).equals("AMB")){
+//            a.append("AMB34");}
+//            System.out.println(a);
+//            m = inputPattern.matcher(a);
+//            System.out.println(m.matches());
         });
 
         TextInput.setOnKeyListener((v, keyCode, event) -> {
@@ -205,6 +209,7 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         ArrayAdapter<CharSequence> parity = ArrayAdapter.createFromResource(MainActivity.this, R.array.parity_array, android.R.layout.simple_spinner_item);
         Spinner spinner_parity = (Spinner) settings_drawer.getMenu().findItem(R.id.parity).getActionView();
         spinner_parity.setAdapter(parity);
+        spinner_parity.setSelection(0);
         spinner_parity.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -310,26 +315,34 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
 
     @Override
     public void onNewData(final byte[] data) {
-//        runOnUiThread(() -> {
-//            String receivedData = new String(data);
-//            txtOut.append("\n \t" + receivedData);
-//            //send data to thingspeak, see sendData button
-//        });
-        Matcher checkPatternHalf = inputPatternHalf.matcher(new String(data));
-            if (checkPatternHalf.matches()){
+        String receivedData = new String(data);
+        runOnUiThread(() -> {
+            txtOut.append("\n" + receivedData);
+        });
+        Matcher checkPatternHalf = inputPatternHalf.matcher(receivedData);
+
+            if (checkPatternHalf.matches() && !checkPattern.matches()){
+                runOnUiThread(() -> {
+                    txtOut.setText("\n Upload string: " + uploadString);
+                    txtOut.append("\n Detected half string");
+                    txtOut.append("\n Group0: " + checkPatternHalf.group(0));
+                    txtOut.append("\n Group1: " + checkPatternHalf.group(1));
+                });
                 if (
                         (uploadString.toString().equals("") && checkPatternHalf.group(1).equals("T"))
                         || (!uploadString.toString().equals("") && checkPatternHalf.group(1).equals("A"))
                 ){
-                    uploadString.append(new String(data));
-                    txtOut.append(uploadString + " \n");
+                    uploadString.append(receivedData);
+                    runOnUiThread(() -> { txtOut.append("\n Upload string: " + uploadString); });
                 }
             }
+            else runOnUiThread(() -> { txtOut.append("\n No detection 1"); });
 /////////////////////////////////////////////
         if (checkPattern.matches()) {
+            runOnUiThread(() -> { txtOut.append("\n Detected full string" + uploadString); });
             String requestURl = ("https://api.thingspeak.com/update?api_key=WA0O4CNVG5RY1SLH&field2=" + checkPattern.group(4)
                     + "&field1=" + checkPattern.group(2));
-            txtOut.append("\n" + requestURl);
+            runOnUiThread(() -> {txtOut.append("\n" + requestURl); });
             new Thread(){
                 public void run() {
                     try {
@@ -341,9 +354,11 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
                     }
                 }
             }.start();
-            txtOut.setText("Data uploaded! \n");
+            txtOut.setText("\n Data uploaded!");
             uploadString = new StringBuilder();
         }
+        else runOnUiThread(() -> { txtOut.append("\n No detection 2"); });
+
     }
 
     @Override
