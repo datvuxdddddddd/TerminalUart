@@ -111,13 +111,14 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
         startMQTT();
 
         sendData.setOnClickListener((View v) -> {
-            StringBuilder a = new StringBuilder("T12");
+            String a = "T12A65";
             System.out.println(a);
-           Matcher m = inputPatternHalf.matcher(a);
-           m.matches();
-
-
-
+            Matcher m = inputPattern.matcher(a);
+            System.out.println(m.matches());
+            System.out.println(m.group(1));
+            System.out.println(m.group(2));
+            System.out.println(m.group(3));
+            System.out.println(m.group(4));
 
 //            m = inputPatternHalf.matcher("AMB34");
 //            m.matches();
@@ -311,7 +312,6 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
 
 
     private StringBuilder uploadString = new StringBuilder();
-    private Matcher checkPattern = inputPattern.matcher(uploadString);
 
     @Override
     public void onNewData(final byte[] data) {
@@ -320,13 +320,14 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
             txtOut.append("\n" + receivedData);
         });
         Matcher checkPatternHalf = inputPatternHalf.matcher(receivedData);
+        Matcher checkPatternFull = inputPattern.matcher(uploadString);
 
-            if (checkPatternHalf.matches() && !checkPattern.matches()){
+
+        if (checkPatternHalf.matches() && !checkPatternFull.matches()){
                 runOnUiThread(() -> {
-                    txtOut.setText("\n Upload string: " + uploadString);
                     txtOut.append("\n Detected half string");
-                    txtOut.append("\n Group0: " + checkPatternHalf.group(0));
                     txtOut.append("\n Group1: " + checkPatternHalf.group(1));
+                    txtOut.append("\n Group2: " + checkPatternHalf.group(2));
                 });
                 if (
                         (uploadString.toString().equals("") && checkPatternHalf.group(1).equals("T"))
@@ -336,29 +337,32 @@ public class MainActivity extends AppCompatActivity  implements SerialInputOutpu
                     runOnUiThread(() -> { txtOut.append("\n Upload string: " + uploadString); });
                 }
             }
-            else runOnUiThread(() -> { txtOut.append("\n No detection 1"); });
-/////////////////////////////////////////////
-        if (checkPattern.matches()) {
-            runOnUiThread(() -> { txtOut.append("\n Detected full string" + uploadString); });
-            String requestURl = ("https://api.thingspeak.com/update?api_key=WA0O4CNVG5RY1SLH&field2=" + checkPattern.group(4)
-                    + "&field1=" + checkPattern.group(2));
-            runOnUiThread(() -> {txtOut.append("\n" + requestURl); });
-            new Thread(){
-                public void run() {
-                    try {
-                        Request request = new Request.Builder().url(requestURl).build();
-                        new OkHttpClient().newCall(request).execute().close();
+            //else if (!checkPatternHalf.matches()) runOnUiThread(() -> { txtOut.append("\n No half detection "); });
+            if (checkPatternFull.matches()) {
+                runOnUiThread(() -> {
+                    txtOut.append("\n Detected full string: " + uploadString);
+                    txtOut.append("\n Group0: " + checkPatternFull.group(1));
+                    txtOut.append("\n Group1: " + checkPatternFull.group(2));
+                    txtOut.append("\n Group2: " + checkPatternFull.group(3));
+                    txtOut.append("\n Group3: " + checkPatternFull.group(4));
+                });
+                String requestURl = ("https://api.thingspeak.com/update?api_key=WA0O4CNVG5RY1SLH&field2=" + checkPatternFull.group(4)
+                        + "&field1=" + checkPatternFull.group(2));
+                runOnUiThread(() -> {txtOut.setText("\n" + requestURl); });
+                new Thread(){
+                    public void run() {
+                        try {
+                            Request request = new Request.Builder().url(requestURl).build();
+                            new OkHttpClient().newCall(request).execute().close();
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            }.start();
-            txtOut.setText("\n Data uploaded!");
-            uploadString = new StringBuilder();
-        }
-        else runOnUiThread(() -> { txtOut.append("\n No detection 2"); });
-
+                }.start();
+                txtOut.setText("");
+                uploadString = new StringBuilder();
+            }
     }
 
     @Override
